@@ -54,9 +54,12 @@ public:
 	void ForwardPropagate(const vector<double>& inputVals);
 	void BackPropagate(const vector<double>& targetVals);
 	void GetResults(vector<double> &resultVals);
-
+	double getRecentAverageError(void) const { return m_recentAverageError; }
 
 private:
 	vector<layer> m_layers;
+	double m_error;
+	double m_recentAverageError;
+	static double m_recentAverageSmoothingFactor;
 };
 

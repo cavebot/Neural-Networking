@@ -6,8 +6,10 @@
 // Neuron Class implementation
 
 
-double neuron::eta = 0.15;
+double neuron::eta = 0.25;
 double neuron::alpha = 0.5;
+//double NeuralNetwork::m_recentAverageSmoothingFactor = 100.0;
+
 
 neuron::neuron(int numOutputs, int myIndex)
 {
@@ -23,6 +25,7 @@ neuron::neuron(int numOutputs, int myIndex)
 
 double neuron::transferFunction(double x)
 {
+	//return 1.0 / (1.0 + exp(-x));   //signmoid function
 	return tanh(x);
 }
 ///////////////////
@@ -30,7 +33,8 @@ double neuron::transferFunction(double x)
 
 double neuron::transferFunctionDerivative(double x)
 {
-	return 1 - x * x;
+	//return (1.0 / (1.0 + exp(-x))) * (1.0 - (1.0 / (1.0 + exp(-x)))); //sigmoid derivative
+	return 1.0 - x * x;
 }
 ///////////////////
 
@@ -38,10 +42,10 @@ double neuron::transferFunctionDerivative(double x)
 void neuron::feedForward(const layer& previousLayer)
 {
 	double sum = 0.0;
-	for (int i = 0; i < previousLayer.size(); i++)
+	for (int n = 0; n < previousLayer.size(); n++)
 	{
-		sum += previousLayer[i].getOutputVal() *
-			previousLayer[i].m_outputWeights[m_myIndex].weight;
+		sum += previousLayer[n].getOutputVal() *
+			previousLayer[n].m_outputWeights[m_myIndex].weight;
 	}
 
 	m_outputVal = neuron::transferFunction(sum);
@@ -129,13 +133,12 @@ NeuralNetwork::~NeuralNetwork()
 
 void NeuralNetwork::ForwardPropagate(const vector<double>& inputVals)
 {
-	cout << inputVals.size() << " " << m_layers[0].size() - 1 << endl;
-
 	assert(inputVals.size() == m_layers[0].size() - 1);
+
 	//pass input values into the network
 	for (int i = 0; i < inputVals.size(); i++)
 	{
-		//m_layers[0][i].setOutputVal(inputVals[i]);
+		m_layers[0][i].setOutputVal(inputVals[i]);
 	}
 
 	//Start forward propagation
@@ -154,7 +157,7 @@ void NeuralNetwork::BackPropagate(const vector<double>& targetVals)
 {
 
 	layer& outputLayer = m_layers.back();
-	double m_error = 0.0;
+	m_error = 0.0;
 	double m_recentAverageError;
 	double m_recentAverageSmoothingFactor;
 
@@ -171,7 +174,7 @@ void NeuralNetwork::BackPropagate(const vector<double>& targetVals)
 
 	//recent average error measure
    // m_recentAverageError = (m_recentAverageError * m_recentAverageSmoothingFactor + m_error)
-	   // / (m_recentAverageError + 1.0);
+	 //   / (m_recentAverageError + 1.0);
 
 
 	//calcualte output layer gradient
